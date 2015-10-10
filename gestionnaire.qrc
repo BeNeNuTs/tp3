@@ -3,7 +3,5 @@
         <file>heightmap-1.png</file>
         <file>heightmap-2.png</file>
         <file>heightmap-3.png</file>                
-                <file>bureau256.png</file>
-        
     </qresource>
 </RCC>

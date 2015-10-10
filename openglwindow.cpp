@@ -49,7 +49,8 @@
 //! [1]
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
-
+    , m_update_pending(false)
+    , m_animating(false)
     , m_context(0)
     , m_device(0)
 {
@@ -83,19 +84,28 @@ void OpenGLWindow::render()
     QPainter painter(m_device);
     render(&painter);
 }
+//! [2]
+
+//! [3]
+void OpenGLWindow::renderLater()
+{
+    if (!m_update_pending) {
+        m_update_pending = true;
+        QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+    }
+}
 
 bool OpenGLWindow::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::UpdateRequest:
-
+        m_update_pending = false;
         renderNow();
         return true;
     default:
         return QWindow::event(event);
     }
 }
-
 
 void OpenGLWindow::exposeEvent(QExposeEvent *event)
 {
@@ -134,5 +144,21 @@ void OpenGLWindow::renderNow()
 
     m_context->swapBuffers(this);
 
+    if (m_animating)
+        renderLater();
+}
+//! [4]
+
+//! [5]
+void OpenGLWindow::setAnimating(bool animating)
+{
+    m_animating = animating;
+
+    if (animating)
+        renderLater();
 }
 
+void OpenGLWindow::connected(){}
+void OpenGLWindow::disconnected() {}
+void OpenGLWindow::bytesWritten(qint64 bytes) {}
+void OpenGLWindow::readyRead() {}

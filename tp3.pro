@@ -1,13 +1,20 @@
 INCLUDEPATH += $$PWD
-SOURCES += $$PWD/openglwindow.cpp
-HEADERS += $$PWD/openglwindow.h
+SOURCES += $$PWD/openglwindow.cpp \
+    gamewindow.cpp \
+    camera.cpp \
+    mytcpserver.cpp
+HEADERS += $$PWD/openglwindow.h \
+    gamewindow.h \
+    camera.h \
+    mytcpserver.h
 
 SOURCES += \
     main.cpp
 
-target.path = $$[QT_INSTALL_EXAMPLES]/gui/openglwindow
+target.path = .
 INSTALLS += target
-QMAKE_MAC_SDK = macosx10.11
 
 RESOURCES += \
     gestionnaire.qrc
+
+QT += network

@@ -28,6 +28,8 @@ static bool animate = true; //permet de savoir si on anime les terrain des diff√
  */
 GameWindow::GameWindow(int refresh_rate, Camera* c) : carte(1), m_refresh_rate(refresh_rate), speed(0.5f)
 {
+    srand(time(NULL));
+
     if(c != 0){
         share_cam = true;
         m_camera = c;
@@ -244,6 +246,20 @@ void GameWindow::displayPoints()
 {
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_POINTS);
+
+    if(season == "PRINTEMPS"){
+        glColor3f(0.f, 0.7f, 0.2f);
+    }
+    if(season == "ETE"){
+        glColor3f(1.f, 1.f, 0.f);
+    }
+    else if(season == "AUTOMNE"){
+        glColor3f(0.86f, 0.4f, 0.f);
+    }
+    else if(season == "HIVER"){
+        glColor3f(1.f, 1.f, 1.f);
+    }
+
     uint id = 0;
     for(int i = 0; i < m_image.width(); i++)
     {

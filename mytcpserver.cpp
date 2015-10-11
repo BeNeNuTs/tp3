@@ -7,7 +7,9 @@ MyTcpServer::MyTcpServer(QObject *parent) :
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+}
 
+void MyTcpServer::start(int timeBetweenSeason){
     if(!server->listen(QHostAddress::Any, 9999))
     {
         qDebug() << "Server could not start";
@@ -20,7 +22,7 @@ MyTcpServer::MyTcpServer(QObject *parent) :
 
         timer = new QTimer(this);
         connect(timer,SIGNAL(timeout()),this, SLOT(sendSeason()));
-        timer->start(10000);
+        timer->start(timeBetweenSeason);
     }
 }
 
@@ -39,7 +41,6 @@ void MyTcpServer::sendSeason()
 {
     int tmpSeason = season;
     for(int i = 0 ; i < id ; i++){
-
         if(tmpSeason == 0)
             clients[i]->write("PRINTEMPS");
         else if(tmpSeason == 1)

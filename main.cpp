@@ -28,6 +28,7 @@ int main(int argc, char **argv)
     format.setSamples(16);
 
     MyTcpServer* tcpServer = new MyTcpServer();
+    tcpServer->start(10000);
 
     Camera* cam = new Camera();
 

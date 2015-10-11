@@ -76,7 +76,7 @@ void GameWindow::initialize()
     glOrtho(-1.0, 1.0, -1.0, 1.0, -100.0, 100.0);
 
     loadMap(":/heightmap-2.png");
-
+    createParticles();
 }
 
 /**
@@ -89,7 +89,6 @@ void GameWindow::loadMap(QString localPath)
     if (QFile::exists(localPath)) {
         m_image = QImage(localPath);
     }
-
 
     uint id = 0;
     p = new point[m_image.width() * m_image.height()];
@@ -108,6 +107,12 @@ void GameWindow::loadMap(QString localPath)
             p[id].z = 0.001f * (float)(qRed(pixel));
         }
     }
+
+    min_x = p[0].x;
+    min_y = p[0].y;
+
+    max_x = p[m_image.width() * m_image.height() - 1].x;
+    max_y = p[m_image.width() * m_image.height() - 1].y;
 }
 
 /**
@@ -117,7 +122,6 @@ void GameWindow::render()
 {
 
     glClear(GL_COLOR_BUFFER_BIT);
-
 
     glLoadIdentity();
     glScalef(m_camera->ss,m_camera->ss,m_camera->ss);
@@ -151,7 +155,7 @@ void GameWindow::render()
         break;
     }
 
-
+    displayParticles();
 
     if(animate){
         animWindow();
@@ -247,18 +251,7 @@ void GameWindow::displayPoints()
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_POINTS);
 
-    if(season == "PRINTEMPS"){
-        glColor3f(0.f, 0.7f, 0.2f);
-    }
-    if(season == "ETE"){
-        glColor3f(1.f, 1.f, 0.f);
-    }
-    else if(season == "AUTOMNE"){
-        glColor3f(0.86f, 0.4f, 0.f);
-    }
-    else if(season == "HIVER"){
-        glColor3f(1.f, 1.f, 1.f);
-    }
+    seasonColor();
 
     uint id = 0;
     for(int i = 0; i < m_image.width(); i++)
@@ -281,7 +274,7 @@ void GameWindow::displayPoints()
  */
 void GameWindow::displayTriangles()
 {
-    glColor3f(1.0f, 1.0f, 1.0f);
+    seasonColor();
     glBegin(GL_TRIANGLES);
     uint id = 0;
 
@@ -386,7 +379,7 @@ void GameWindow::displayTrianglesC()
  */
 void GameWindow::displayLines()
 {
-    glColor3f(1.0f, 1.0f, 1.0f);
+    seasonColor();
     glBegin(GL_LINES);
     uint id = 0;
 
@@ -562,6 +555,68 @@ void GameWindow::updateTitle(){
     setTitle(title);
 }
 
+void GameWindow::seasonColor(){
+    if(season == "PRINTEMPS"){
+        glColor3f(0.f, 0.7f, 0.2f);
+    }
+    if(season == "ETE"){
+        glColor3f(1.f, 1.f, 0.f);
+    }
+    else if(season == "AUTOMNE"){
+        glColor3f(0.86f, 0.4f, 0.f);
+    }
+    else if(season == "HIVER"){
+        glColor3f(0.8f, 0.8f, 0.8f);
+    }
+}
+
+void GameWindow::createParticles(){
+    tab_particles = new particles[MAX_PARTICLES];
+    for(unsigned int i = 0 ; i < MAX_PARTICLES ; i++){
+        tab_particles[i] = newParticle();
+    }
+}
+
+particles GameWindow::newParticle(){
+    particles part;
+    int rand_x, rand_y, id;
+
+    rand_x = rand() % m_image.width();
+    rand_y = rand() % m_image.height();
+    id = rand_y * m_image.width() + rand_x;
+
+    part.x = p[id].x;
+    part.y = p[id].y;
+    part.z = (rand() % 5 + 3) / 10.f;
+    part.min_z = p[id].z;
+    part.falling_speed = (rand() % 10 + 1) / 1000.f;
+
+    return part;
+}
+
+
+void GameWindow::displayParticles(){
+    if(season == "AUTOMNE"){
+        glColor3f(0.0f, 0.0f, 1.0f);
+    }else if(season == "HIVER"){
+        glColor3f(1.0f, 1.0f, 1.0f);
+    }else{
+        return;
+    }
+
+    glBegin(GL_POINTS);
+    for(unsigned int i = 0 ; i < MAX_PARTICLES ; i++){
+        glVertex3f(tab_particles[i].x, tab_particles[i].y, tab_particles[i].z);
+
+        tab_particles[i].z -= tab_particles[i].falling_speed;
+
+        if(tab_particles[i].z < tab_particles[i].min_z){
+            tab_particles[i] = newParticle();
+        }
+    }
+    glEnd();
+}
+
 void GameWindow::doConnect(){
     socket = new QTcpSocket(this);
 
@@ -585,27 +640,27 @@ void GameWindow::doConnect(){
 /** SLOTS **/
 void GameWindow::connected()
 {
-    qDebug() << QString::number(m_refresh_rate) << "FPS window : connected...";
+    //qDebug() << QString::number(m_refresh_rate) << "FPS window : connected...";
 }
 
 void GameWindow::disconnected()
 {
-    qDebug() << QString::number(m_refresh_rate) << "FPS window : disconnected...";
+    //qDebug() << QString::number(m_refresh_rate) << "FPS window : disconnected...";
 }
 
 void GameWindow::bytesWritten(qint64 bytes)
 {
-    qDebug() << QString::number(m_refresh_rate) << "FPS window : " << bytes << " bytes written...";
+    //qDebug() << QString::number(m_refresh_rate) << "FPS window : " << bytes << " bytes written...";
 }
 
 void GameWindow::readyRead()
 {
-    qDebug() << QString::number(m_refresh_rate) << "FPS window : reading...";
+    //qDebug() << QString::number(m_refresh_rate) << "FPS window : reading...";
 
     season = QString(socket->readAll());
 
     // read the data from the socket
-    qDebug() << QString::number(m_refresh_rate) << "FPS window : " << season;
+    //qDebug() << QString::number(m_refresh_rate) << "FPS window : " << season;
 
     updateTitle();
 }

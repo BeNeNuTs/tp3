@@ -12,6 +12,13 @@ struct point
     float x, y ,z;
 };
 
+struct particles
+{
+    float x, y ,z;
+    float falling_speed;
+    float min_z;
+};
+
 
 class GameWindow : public OpenGLWindow
 {
@@ -47,8 +54,16 @@ public:
     void restartTimer();
 
     void updateTitle();
+    void seasonColor();
+
+    void createParticles();
+    particles newParticle();
+    void displayParticles();
 
     void doConnect();
+
+public:
+    static const unsigned int MAX_PARTICLES = 1000;
 
 private:
 
@@ -69,6 +84,9 @@ private:
 
     QString season;
     QTcpSocket *socket;
+
+    particles* tab_particles;
+    int max_x, max_y, min_x, min_y;
 };
 
 

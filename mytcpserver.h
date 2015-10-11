@@ -13,6 +13,7 @@ class MyTcpServer : public QObject
     Q_OBJECT
 public:
     explicit MyTcpServer(QObject *parent = 0);
+    void start(int timeBetweenSeason);
 
 signals:
 

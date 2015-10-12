@@ -18,3 +18,6 @@ RESOURCES += \
     gestionnaire.qrc
 
 QT += network
+
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -fopenmp

@@ -254,8 +254,11 @@ void GameWindow::displayPoints()
     seasonColor();
 
     uint id = 0;
+
+    #pragma omp for schedule(dynamic)
     for(int i = 0; i < m_image.width(); i++)
     {
+
         for(int j = 0; j < m_image.height(); j++)
         {
             id = i*m_image.width() +j;
@@ -278,6 +281,7 @@ void GameWindow::displayTriangles()
     glBegin(GL_TRIANGLES);
     uint id = 0;
 
+    #pragma omp for schedule(dynamic)
     for(int i = 0; i < m_image.width()-1; i++)
     {
         for(int j = 0; j < m_image.height()-1; j++)
@@ -331,6 +335,7 @@ void GameWindow::displayTrianglesC()
     glBegin(GL_TRIANGLES);
     uint id = 0;
 
+    #pragma omp for schedule(dynamic)
     for(int i = 0; i < m_image.width()-1; i++)
     {
         for(int j = 0; j < m_image.height()-1; j++)
@@ -383,6 +388,7 @@ void GameWindow::displayLines()
     glBegin(GL_LINES);
     uint id = 0;
 
+    #pragma omp for schedule(dynamic)
     for(int i = 0; i < m_image.width()-1; i++)
     {
         for(int j = 0; j < m_image.height()-1; j++)
@@ -458,6 +464,7 @@ void GameWindow::displayTrianglesTexture()
     glBegin(GL_TRIANGLES);
     uint id = 0;
 
+    #pragma omp for schedule(dynamic)
     for(int i = 0; i < m_image.width()-1; i++)
     {
         for(int j = 0; j < m_image.height()-1; j++)
@@ -549,12 +556,18 @@ void GameWindow::restartTimer(){
     updateTitle();
 }
 
+/**
+ * @brief GameWindow::updateTitle, Met à jour le titre de la fenêtre en fonction de la saison et du framerate de celle-ci.
+ */
 void GameWindow::updateTitle(){
     QString fps = QString::number(m_refresh_rate);
     QString title = fps + "FPS - " + season;
     setTitle(title);
 }
 
+/**
+ * @brief GameWindow::seasonColor, Affiche le terrain d'une couleur différente en fonction de la saison.
+ */
 void GameWindow::seasonColor(){
     if(season == "PRINTEMPS"){
         glColor3f(0.f, 0.7f, 0.2f);
@@ -570,13 +583,22 @@ void GameWindow::seasonColor(){
     }
 }
 
+/**
+ * @brief GameWindow::createParticles, Initialise le tableau de particules.
+ */
 void GameWindow::createParticles(){
     tab_particles = new particles[MAX_PARTICLES];
+
+    #pragma omp parallel for
     for(unsigned int i = 0 ; i < MAX_PARTICLES ; i++){
         tab_particles[i] = newParticle();
     }
 }
 
+/**
+ * @brief GameWindow::newParticle, Créé et retourne une nouvelle particule à une position aléatoire.
+ * @return nouvelle particule
+ */
 particles GameWindow::newParticle(){
     particles part;
     int rand_x, rand_y, id;
@@ -594,7 +616,9 @@ particles GameWindow::newParticle(){
     return part;
 }
 
-
+/**
+ * @brief GameWindow::displayParticles, Affiche le système de particules lorsque c'est nécessaire.
+ */
 void GameWindow::displayParticles(){
     if(season == "AUTOMNE"){
         glColor3f(0.0f, 0.0f, 1.0f);
@@ -605,6 +629,8 @@ void GameWindow::displayParticles(){
     }
 
     glBegin(GL_POINTS);
+
+    #pragma omp for schedule(dynamic)
     for(unsigned int i = 0 ; i < MAX_PARTICLES ; i++){
         glVertex3f(tab_particles[i].x, tab_particles[i].y, tab_particles[i].z);
 
@@ -617,6 +643,9 @@ void GameWindow::displayParticles(){
     glEnd();
 }
 
+/**
+ * @brief GameWindow::doConnect, Connecte le client au serveur.
+ */
 void GameWindow::doConnect(){
     socket = new QTcpSocket(this);
 
@@ -638,29 +667,29 @@ void GameWindow::doConnect(){
 }
 
 /** SLOTS **/
+
+/**
+ * @brief GameWindow::connected, s'execute lorsque le client se connecte à un serveur.
+ */
 void GameWindow::connected()
 {
-    //qDebug() << QString::number(m_refresh_rate) << "FPS window : connected...";
+    qDebug() << QString::number(m_refresh_rate) << "FPS window : connected...";
 }
 
+/**
+ * @brief GameWindow::disconnected, s'éxecute lorsque le client est déconnecté.
+ */
 void GameWindow::disconnected()
 {
-    //qDebug() << QString::number(m_refresh_rate) << "FPS window : disconnected...";
+    qDebug() << QString::number(m_refresh_rate) << "FPS window : disconnected...";
 }
 
-void GameWindow::bytesWritten(qint64 bytes)
-{
-    //qDebug() << QString::number(m_refresh_rate) << "FPS window : " << bytes << " bytes written...";
-}
-
+/**
+ * @brief GameWindow::readyRead, permet de recevoir les données envoyées par le serveur.
+ */
 void GameWindow::readyRead()
 {
-    //qDebug() << QString::number(m_refresh_rate) << "FPS window : reading...";
-
-    season = QString(socket->readAll());
-
     // read the data from the socket
-    //qDebug() << QString::number(m_refresh_rate) << "FPS window : " << season;
-
+    season = QString(socket->readAll());
     updateTitle();
 }

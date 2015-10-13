@@ -30,7 +30,6 @@ void MyTcpServer::newConnection()
 {
     // need to grab the socket
     QTcpSocket *socket = server->nextPendingConnection();
-
     if(id < 4){
         clients[id] = socket;
         id++;

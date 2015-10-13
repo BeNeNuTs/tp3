@@ -81,11 +81,10 @@ private:
 
     float speed;				// Vitesse de rotation du terrain selon l'axe y quand animate = true.
 
-    QString season;
-    QTcpSocket *socket;
+    QString season;             // Contient le nom de la saison courante dans la fenêtre
+    QTcpSocket *socket;         // QTcpSocket permettant de se connecter au serveur
 
-    particles* tab_particles;
-    int max_x, max_y, min_x, min_y;
+    particles* tab_particles;   // Tableau contenant les particules de pluie/neige
 };
 
 

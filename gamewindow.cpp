@@ -107,12 +107,6 @@ void GameWindow::loadMap(QString localPath)
             p[id].z = 0.001f * (float)(qRed(pixel));
         }
     }
-
-    min_x = p[0].x;
-    min_y = p[0].y;
-
-    max_x = p[m_image.width() * m_image.height() - 1].x;
-    max_y = p[m_image.width() * m_image.height() - 1].y;
 }
 
 /**
